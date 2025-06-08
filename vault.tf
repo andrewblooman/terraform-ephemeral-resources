@@ -4,12 +4,19 @@ resource "vault_mount" "kvv2" {
   options = { version = "2" }
 }
 
+
+
+ephemeral "random_password" "db_password" {
+  length           = 16
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
 resource "vault_kv_secret_v2" "db_root" {
   mount = vault_mount.kvv2.path
-  name  = "pgx-root"
+  name  = "postgresql-root"
   data_json_wo = jsonencode(
     {
-      password = "root-user-password"
+      password = "${ephemeral.random_password.db_password.result}"
     }
   )
   data_json_wo_version = 1
